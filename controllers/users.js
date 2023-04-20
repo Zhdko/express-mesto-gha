@@ -80,7 +80,7 @@ const updateUser = (req, res) => {
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
-    req.params._id,
+    req.user._id,
     { avatar },
     {
       new: true,
@@ -99,10 +99,7 @@ const updateAvatar = (req, res) => {
           .send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        res.status(400).send({ message });
+        res.status(400).send({ message: 'Передан некорректный id' });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
       }
