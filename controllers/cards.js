@@ -48,7 +48,7 @@ const deleteCard = (req, res) => {
 
 const likeCard = (req, res) => {
   const { cardId } = req.params;
-  const { userId } = req.user._id
+  const { userId } = req.user._id;
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: userId } },
@@ -58,8 +58,8 @@ const likeCard = (req, res) => {
       throw new Error('Not found');
     })
     .then((card) => {
-      if()
-      res.send({ data: card })})
+      res.send({ data: card });
+    })
     .catch((err) => {
       if (err.message === 'Not found') {
         res
