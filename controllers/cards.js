@@ -48,25 +48,25 @@ const deleteCard = (req, res) => {
 
 const likeCard = (req, res) => {
   const { cardId } = req.params;
+  const { userId } = req.user._id
   Card.findByIdAndUpdate(
     cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: userId } },
     { new: true }
   )
     .orFail(() => {
       throw new Error('Not found');
     })
-    .then((card) => res.send({ data: card }))
+    .then((card) => {
+      if()
+      res.send({ data: card })})
     .catch((err) => {
       if (err.message === 'Not found') {
         res
           .status(404)
           .send({ message: 'Передан несуществующий _id карточки.' });
       }
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
+      if (err.name === 'CastError') {
         res.status(400).send({ message });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
