@@ -65,8 +65,11 @@ const likeCard = (req, res) => {
           .status(404)
           .send({ message: 'Передан несуществующий _id карточки.' });
       }
-      if (err instanceof 'CastError' || err instanceof 'CastError') {
-        res.status(400).send({ message: 'Переданны некоректные данные' });
+      if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors)
+          .map((error) => error.message)
+          .join('; ');
+        res.status(400).send({ message });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
       }
