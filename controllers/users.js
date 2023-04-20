@@ -20,6 +20,9 @@ const getUser = (req, res) => {
         res
           .status(404)
           .send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      if (err.name === 'CastError') {
+        next(res.status(400).send({ message: 'Передан некорректный id' }));
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
       }
