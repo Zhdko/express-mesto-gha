@@ -18,7 +18,7 @@ const getUser = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(400)
           .send({ message: 'Пользователь по указанному _id не найден.' });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
