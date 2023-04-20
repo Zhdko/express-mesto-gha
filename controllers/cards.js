@@ -38,7 +38,7 @@ const deleteCard = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(400)
+          .status(404)
           .send({ message: 'Карточка с указанным _id не найдена.' });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
@@ -48,7 +48,6 @@ const deleteCard = (req, res) => {
 
 const likeCard = (req, res) => {
   const { cardId } = req.params;
-  console.log(cardId);
   Card.findByIdAndUpdate(
     cardId,
     { $addToSet: { likes: req.user._id } },
@@ -62,7 +61,13 @@ const likeCard = (req, res) => {
       if (err.message === 'Not found') {
         res
           .status(404)
-          .send({ message: 'Карточка с указанным _id не найдена.' });
+          .send({ message: 'Передан несуществующий _id карточки.' });
+      }
+      if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors)
+          .map((error) => error.message)
+          .join('; ');
+        res.status(400).send({ message });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
       }
@@ -87,6 +92,12 @@ const dislikeCard = (req, res) => {
         res
           .status(404)
           .send({ message: 'Карточка с указанным _id не найдена.' });
+      }
+      if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors)
+          .map((error) => error.message)
+          .join('; ');
+        res.status(400).send({ message });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
       }
