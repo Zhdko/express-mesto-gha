@@ -18,8 +18,11 @@ const getUser = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(400)
+          .status(404)
           .send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      if (err instanceof 'CastError' || err instanceof 'CastError') {
+        res.status(400).send({ message: 'Переданны некоректные данные' });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
       }
