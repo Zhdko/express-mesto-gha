@@ -92,7 +92,7 @@ const dislikeCard = (req, res) => {
           .status(404)
           .send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(400).send({ message: 'Передан некорректный id' });
       } else {
         res.status(500).send({ message: 'Что-то пошло не так' });
