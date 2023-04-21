@@ -1,16 +1,10 @@
 const User = require('../models/user');
-const {
-  NOT_FOUND_ERROR,
-  DEFAULT_ERROR,
-  DATA__ERROR,
-} = require('../utils/constants');
+const { NOT_FOUND_ERROR, DEFAULT_ERROR, DATA__ERROR } = require('../utils/constants');
 
 const getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) =>
-      res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' })
-    );
+    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
 };
 
 const getUser = (req, res) => {
@@ -24,9 +18,7 @@ const getUser = (req, res) => {
     })
     .catch((err) => {
       if (err.message === 'Not found') {
-        res
-          .status(NOT_FOUND_ERROR)
-          .send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'CastError') {
         res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
@@ -60,7 +52,7 @@ const updateUser = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail(() => {
       throw new Error('Not found');
@@ -68,9 +60,7 @@ const updateUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res
-          .status(NOT_FOUND_ERROR)
-          .send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'ValidationError') {
         const message = Object.values(err.errors)
@@ -91,7 +81,7 @@ const updateAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail(() => {
       throw new Error('Not found');
@@ -99,9 +89,7 @@ const updateAvatar = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res
-          .status(NOT_FOUND_ERROR)
-          .send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'ValidationError') {
         res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });

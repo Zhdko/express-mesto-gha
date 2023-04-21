@@ -6,9 +6,7 @@ const { userRouter } = require('./routes/users');
 const { cardRouter } = require('./routes/cards');
 
 process.on('uncaughtException', (err, origin) => {
-  console.log(
-    `${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`
-  );
+  console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
 });
 
 const app = express();
