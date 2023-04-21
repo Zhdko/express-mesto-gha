@@ -1,9 +1,16 @@
 const User = require('../models/user');
+const {
+  NOT_FOUND_ERROR,
+  DEFAULT_ERROR,
+  DATA__ERROR,
+} = require('../utils/constants');
 
 const getAllUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res.status(500).send({ message: 'Что-то пошло не так' }));
+    .catch((err) =>
+      res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' })
+    );
 };
 
 const getUser = (req, res) => {
@@ -18,13 +25,13 @@ const getUser = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(NOT_FOUND_ERROR)
           .send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Передан некорректный id' });
+        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -38,9 +45,9 @@ const createUser = (req, res) => {
         const message = Object.values(err.errors)
           .map((error) => error.message)
           .join('; ');
-        res.status(400).send({ message });
+        res.status(DATA__ERROR).send({ message });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -63,16 +70,16 @@ const updateUser = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(NOT_FOUND_ERROR)
           .send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'ValidationError') {
         const message = Object.values(err.errors)
           .map((error) => error.message)
           .join('; ');
-        res.status(400).send({ message });
+        res.status(DATA__ERROR).send({ message });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -95,13 +102,13 @@ const updateAvatar = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(NOT_FOUND_ERROR)
           .send({ message: 'Пользователь по указанному _id не найден.' });
       }
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: 'Передан некорректный id' });
+        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };

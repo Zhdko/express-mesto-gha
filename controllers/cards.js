@@ -1,11 +1,18 @@
 const Card = require('../models/card');
+const {
+  NOT_FOUND_ERROR,
+  DEFAULT_ERROR,
+  DATA__ERROR,
+} = require('../utils/constants');
 
 const getAllCards = (req, res) => {
   Card.find({})
     .then((cards) => {
       res.send({ data: cards });
     })
-    .catch((err) => res.status(500).send({ message: 'Что-то пошло не так' }));
+    .catch((err) =>
+      res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' })
+    );
 };
 
 const createCard = (req, res) => {
@@ -19,9 +26,9 @@ const createCard = (req, res) => {
         const message = Object.values(err.errors)
           .map((error) => error.message)
           .join('; ');
-        res.status(400).send({ message });
+        res.status(DATA__ERROR).send({ message });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -38,13 +45,13 @@ const deleteCard = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(NOT_FOUND_ERROR)
           .send({ message: 'Карточка с указанным _id не найдена.' });
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Передан некорректный id' });
+        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -65,13 +72,13 @@ const likeCard = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(NOT_FOUND_ERROR)
           .send({ message: 'Передан несуществующий _id карточки.' });
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Передан некорректный id' });
+        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };
@@ -92,13 +99,13 @@ const dislikeCard = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res
-          .status(404)
+          .status(NOT_FOUND_ERROR)
           .send({ message: 'Карточка с указанным _id не найдена.' });
       }
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Передан некорректный id' });
+        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
       } else {
-        res.status(500).send({ message: 'Что-то пошло не так' });
+        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
       }
     });
 };

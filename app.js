@@ -34,6 +34,9 @@ app.use((req, res, next) => {
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
+app.get('*', function (req, res) {
+  res.status(404).send({ message: 'Такого адреса не существует' });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
