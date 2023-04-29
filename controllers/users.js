@@ -7,6 +7,7 @@ const RequestError = require('../errors/RequestError');
 const handleErrors = require('../errors/handleError');
 const RegisterError = require('../errors/RegisterError');
 const AuthorizationError = require('../errors/AuthorizationError');
+const NotFoundError = require('../errors/NotFoundError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -83,7 +84,17 @@ const getUser = (req, res, next) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      handleErrors(err, req, res, next);
+      if (err.message === 'Not found') {
+        next(new NotFoundError('Пользователь по указанному _id не найден.'));
+      }
+      if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors)
+          .map((error) => error.message)
+          .join('; ');
+        next(new RequestError({ message }));
+      } else {
+        next(new DefaultError('Что-то пошло не так'));
+      }
     });
 };
 
@@ -94,7 +105,17 @@ const getCurrentUser = (req, res, next) => {
     })
     .then((user) => res.send(user))
     .catch((err) => {
-      handleErrors(err, req, res, next);
+      if (err.message === 'Not found') {
+        next(new NotFoundError('Пользователь по указанному _id не найден.'));
+      }
+      if (err.name === 'ValidationError') {
+        const message = Object.values(err.errors)
+          .map((error) => error.message)
+          .join('; ');
+        next(new RequestError({ message }));
+      } else {
+        next(new DefaultError('Что-то пошло не так'));
+      }
     });
 };
 
