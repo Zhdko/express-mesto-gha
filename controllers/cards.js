@@ -25,19 +25,18 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  if (req.user._id === req.owner) {
-    Card.findByIdAndRemove(cardId)
-      .orFail(() => {
-        throw new Error('Not found');
-      })
-      .then((card) => {
-        res.send({ data: card });
-      })
-      .catch((err) => {
-        handleErrors(err, req, res, next);
-      });
-  }
-  throw new Error('Нет доступа');
+  const { _id } = req.user;
+  Card.findById(cardId).then((card) => {
+    if (!card) throw new NotFoundError('Данные по указанному id не найдены');
+
+    const { owner: cardOwnerId } = card;
+    if (cardOwnerId.valueOf() !== _id) throw new Error('Нет прав доступа');
+
+    card
+      .remove()
+      .then(() => res.send({ data: card }))
+      .catch(next);
+  }).catch(next);
 };
 
 const likeCard = (req, res, next) => {
