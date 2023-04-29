@@ -2,7 +2,6 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const AuthorizationError = require('../errors/AuthorizationError');
 const DefaultError = require('../errors/DefaultError');
 const RequestError = require('../errors/RequestError');
 const handleErrors = require('../errors/handleError');
@@ -11,7 +10,14 @@ const RegisterError = require('../errors/RegisterError');
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+
   bcrypt.hash(password, 10).then((hash) => {
     User.create({
       name,
@@ -21,7 +27,12 @@ const createUser = (req, res, next) => {
       password: hash,
     })
       .then((user) => {
-        res.send({ email: user.email, name: user.name, about: user.about, avatar: user.avatar });
+        res.send({
+          email: user.email,
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+        });
       })
       .catch((err) => {
         if (err.code === 11000) {

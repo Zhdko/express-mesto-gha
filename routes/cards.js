@@ -1,5 +1,11 @@
 const cardRouter = require('express').Router();
-const { getAllCards, createCard, deleteCard, likeCard, dislikeCard } = require('../controllers/cards');
+const {
+  getAllCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
+} = require('../controllers/cards');
 
 const { validateCreateCard, validateCardId } = require('../middlewares/cardValidation');
 
