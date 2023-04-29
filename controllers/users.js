@@ -88,7 +88,7 @@ const getUser = (req, res, next) => {
 };
 
 const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(req.user.payload)
     .orFail(() => {
       throw new Error('Not found');
     })
