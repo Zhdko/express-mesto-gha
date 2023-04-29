@@ -6,6 +6,7 @@ const DefaultError = require('../errors/DefaultError');
 const RequestError = require('../errors/RequestError');
 const handleErrors = require('../errors/handleError');
 const RegisterError = require('../errors/RegisterError');
+const AuthorizationError = require('../errors/AuthorizationError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -61,8 +62,8 @@ const login = (req, res, next) => {
         })
         .end();
     })
-    .catch((err) => {
-      handleErrors(err, req, res, next);
+    .catch(() => {
+      next(new AuthorizationError('Неправильный логи или пароль'));
     });
 };
 
