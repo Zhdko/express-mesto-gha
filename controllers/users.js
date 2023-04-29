@@ -1,13 +1,66 @@
+require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { NOT_FOUND_ERROR, DEFAULT_ERROR, DATA__ERROR } = require('../utils/constants');
+const AuthorizationError = require('../errors/AuthorizationError');
+const DefaultError = require('../errors/DefaultError');
+const RequestError = require('../errors/RequestError');
+const handleErrors = require('../errors/handleError');
 
-const getAllUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(() => res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' }));
+const { NODE_ENV, JWT_SECRET } = process.env;
+
+const createUser = (req, res, next) => {
+  const { name, about, avatar, email, password } = req.body;
+  bcrypt.hash(password, 10).then((hash) => {
+    User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    })
+      .then((user) => {
+        res.send({ data: user });
+      })
+      .catch((err) => {
+        if (err.code === 11000) {
+          next(new AuthorizationError('Email уже используется'));
+        }
+        if (err.name === 'ValidationError') {
+          next(new RequestError('Переданы неккоректные данные'));
+        } else {
+          next(new DefaultError('Что-то пошло не так'));
+        }
+      });
+  });
 };
 
-const getUser = (req, res) => {
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user.id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+          sameSite: true,
+        })
+        .end();
+    })
+    .catch((err) => {
+      handleErrors(err, req, res, next);
+    });
+};
+
+const getAllUsers = (req, res, next) => {
+  User.find({})
+    .then((users) => res.send({ data: users }))
+    .catch(() => next(new DefaultError('Что-то пошло не так')));
+};
+
+const getUser = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(() => {
@@ -17,34 +70,22 @@ const getUser = (req, res) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден.' });
-      }
-      if (err.name === 'CastError') {
-        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
-      } else {
-        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
-      }
+      handleErrors(err, req, res, next);
     });
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      throw new Error('Not found');
+    })
+    .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        res.status(DATA__ERROR).send({ message });
-      } else {
-        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
-      }
+      handleErrors(err, req, res, next);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -59,21 +100,11 @@ const updateUser = (req, res) => {
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден.' });
-      }
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        res.status(DATA__ERROR).send({ message });
-      } else {
-        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
-      }
+      handleErrors(err, req, res, next);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -88,21 +119,16 @@ const updateAvatar = (req, res) => {
     })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(NOT_FOUND_ERROR).send({ message: 'Пользователь по указанному _id не найден.' });
-      }
-      if (err.name === 'ValidationError') {
-        res.status(DATA__ERROR).send({ message: 'Передан некорректный id' });
-      } else {
-        res.status(DEFAULT_ERROR).send({ message: 'Что-то пошло не так' });
-      }
+      handleErrors(err, req, res, next);
     });
 };
 
 module.exports = {
   getAllUsers,
   getUser,
+  getCurrentUser,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };

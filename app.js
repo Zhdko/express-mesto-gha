@@ -1,9 +1,14 @@
 const process = require('process');
+const cookieParser = require('cookie-parser');
 const express = require('express');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const { userRouter } = require('./routes/users');
 const { cardRouter } = require('./routes/cards');
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const { validateCreateUser, validateLogin } = require('./middlewares/userValidation');
 
 process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
@@ -21,23 +26,25 @@ const { PORT = 3000 } = process.env;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6441665dd3656cacb2177d52',
-  };
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateCreateUser, createUser);
 
+app.use('/users', auth, userRouter);
+app.use('/cards', auth, cardRouter);
+
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
   next();
-});
-
-app.use('/users', userRouter);
-app.use('/cards', cardRouter);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Такого адреса не существует' });
 });
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
-
-// 64415708ee12421c265d5725"
