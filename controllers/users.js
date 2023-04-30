@@ -61,7 +61,7 @@ const login = (req, res, next) => {
           httpOnly: true,
           sameSite: true,
         })
-        .end();
+        .send({ message: 'Вы успешно авторизовались' });
     })
     .catch(() => {
       next(new AuthorizationError('Неправильный логи или пароль'));
