@@ -27,13 +27,26 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const { _id } = req.user;
-  Card.findById(cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
-    .then((card) => {
-      if (_id === card.owner.toString()) {
-        Card.findByIdAndRemove(cardId).then(() => res.send({ data: card }));
-      }
-      throw new ConflictError('У вас нет прав доступа');
-    }).catch(next);
+  Card.findById(cardId).then((card) => {
+    if (!card) {
+      throw new NotFoundError('Карточка не найдена');
+    }
+    const owner = card.owner.toString();
+    if (_id !== owner) {
+      throw new ConflictError('Только владелец карточки может ее удалить');
+    }
+
+    Card.findByIdAndRemove(card)
+  }).catch(next);
+  // Card.findById(cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
+  //   .then((card) => {
+  //     if (_id === card.owner.toString()) {
+  //       console.log('ohs');
+  //       Card.findByIdAndRemove(cardId).then(() => res.send({ data: card }));
+  //     }
+  //     console.log('no');
+  //     throw new ConflictError('У вас нет прав доступа');
+  //   }).catch(next);
 };
 
 const likeCard = (req, res, next) => {
