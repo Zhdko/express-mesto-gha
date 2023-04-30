@@ -103,7 +103,9 @@ const getCurrentUser = (req, res, next) => {
     .orFail(() => {
       throw new Error('Not found');
     })
-    .then((user) => res.send(user))
+    .then((user) => {
+      res.send(user);
+    })
     .catch((err) => {
       if (err.message === 'Not found') {
         next(new NotFoundError('Пользователь по указанному _id не найден.'));
