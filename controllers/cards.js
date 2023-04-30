@@ -27,10 +27,12 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const { _id } = req.user;
   Card.findById(cardId).then((card) => {
-    if (!card) throw new NotFoundError('Данные по указанному id не найдены');
+    if (!card) throw new NotFoundError('Карточка не найдена');
 
     const { owner: cardOwnerId } = card;
-    if (cardOwnerId.valueOf() !== _id) throw new Error('Нет прав доступа');
+    if (cardOwnerId.valueOf() !== _id) {
+      throw new Error('Нет прав доступа');
+    }
 
     card
       .remove()
