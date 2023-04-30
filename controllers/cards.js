@@ -38,15 +38,6 @@ const deleteCard = (req, res, next) => {
 
     Card.findByIdAndRemove(card).then(() => res.send({ data: card })).catch(next);
   }).catch(next);
-  // Card.findById(cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
-  //   .then((card) => {
-  //     if (_id === card.owner.toString()) {
-  //       console.log('ohs');
-  //       Card.findByIdAndRemove(cardId).then(() => res.send({ data: card }));
-  //     }
-  //     console.log('no');
-  //     throw new ConflictError('У вас нет прав доступа');
-  //   }).catch(next);
 };
 
 const likeCard = (req, res, next) => {
