@@ -30,8 +30,9 @@ const deleteCard = (req, res, next) => {
   Card.findById(cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
     .then((card) => {
       if (_id === card.owner.toString()) {
-        Card.findByIdAndRemove(cardId).then((card) => res.send({ data: card }));
+        Card.findByIdAndRemove(cardId).then(() => res.send({ data: card }));
       }
+      throw new ConflictError('У вас нет прав доступа');
     }).catch(next);
 };
 
