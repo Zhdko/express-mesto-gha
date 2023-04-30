@@ -3,6 +3,7 @@ const DefaultError = require('../errors/DefaultError');
 const handleErrors = require('../errors/handleError');
 const NotFoundError = require('../errors/NotFoundError');
 const RequestError = require('../errors/RequestError');
+const ConflictError = require('../errors/ConflictError');
 
 const getAllCards = (req, res, next) => {
   Card.find({})
@@ -26,19 +27,12 @@ const createCard = (req, res, next) => {
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   const { _id } = req.user;
-  Card.findById(cardId).then((card) => {
-    if (!card) throw new NotFoundError('Карточка не найдена');
-
-    const { owner: cardOwnerId } = card;
-    if (cardOwnerId.valueOf() !== _id) {
-      throw new Error('Нет прав доступа');
-    }
-
-    card
-      .remove()
-      .then(() => res.send({ data: card }))
-      .catch(next);
-  }).catch(next);
+  Card.findById(cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
+    .then((card) => {
+      if (_id === card.owner.toString()) {
+        Card.findByIdAndRemove(cardId).then((card) => res.send({ data: card }));
+      }
+    }).catch(next);
 };
 
 const likeCard = (req, res, next) => {
