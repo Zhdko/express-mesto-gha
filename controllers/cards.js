@@ -36,8 +36,8 @@ const deleteCard = (req, res, next) => {
       throw new ConflictError('Только владелец карточки может ее удалить');
     }
 
-    Card.findByIdAndRemove(card).catch(next);
-  }).then((card) => res.send(card)).catch(next);
+    Card.findByIdAndRemove(card).then(() => res.send({ data: card })).catch(next);
+  }).catch(next);
   // Card.findById(cardId).orFail(() => { throw new NotFoundError('Карточка не найдена'); })
   //   .then((card) => {
   //     if (_id === card.owner.toString()) {
