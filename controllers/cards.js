@@ -7,6 +7,7 @@ const ConflictError = require('../errors/ConflictError');
 
 const getAllCards = (req, res, next) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => {
       res.send({ data: cards });
     })
@@ -15,9 +16,16 @@ const getAllCards = (req, res, next) => {
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  Card.create({ name, link, owner: req.user._id })
+  const cardOwner = req.user;
+  console.log(req.user.payload);
+
+  Card.create({ name, link, owner: cardOwner })
     .then((card) => {
-      res.send({ data: card });
+      if (!card) throw new NotFoundError('Ошибка при создании карточки');
+      card.populate('owner').then((cardInfo) => {
+        res.send(cardInfo);
+        console.log(cardInfo);
+      }).catch(next);
     })
     .catch((err) => {
       handleErrors(err, req, res, next);
