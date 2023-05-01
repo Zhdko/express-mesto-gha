@@ -1,8 +1,5 @@
 const Card = require('../models/card');
-const DefaultError = require('../errors/DefaultError');
-const handleErrors = require('../errors/handleError');
 const NotFoundError = require('../errors/NotFoundError');
-const RequestError = require('../errors/RequestError');
 const ConflictError = require('../errors/ConflictError');
 
 const getAllCards = (req, res, next) => {
@@ -11,25 +8,21 @@ const getAllCards = (req, res, next) => {
     .then((cards) => {
       res.send({ data: cards });
     })
-    .catch(() => next(new DefaultError('Что-то пошло не так')));
+    .catch(next);
 };
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const cardOwner = req.user;
-  console.log(req.user.payload);
 
   Card.create({ name, link, owner: cardOwner })
     .then((card) => {
       if (!card) throw new NotFoundError('Ошибка при создании карточки');
       card.populate('owner').then((cardInfo) => {
-        res.send(cardInfo);
-        console.log(cardInfo);
+        res.status(201).send(cardInfo);
       }).catch(next);
     })
-    .catch((err) => {
-      handleErrors(err, req, res, next);
-    });
+    .catch(next);
 };
 
 const deleteCard = (req, res, next) => {
@@ -44,7 +37,7 @@ const deleteCard = (req, res, next) => {
       throw new ConflictError('Только владелец карточки может ее удалить');
     }
 
-    Card.findByIdAndRemove(card).then(() => res.send({ data: card })).catch(next);
+    card.deleteOne().then(() => res.send({ data: card })).catch(next);
   }).catch(next);
 };
 
@@ -52,48 +45,24 @@ const likeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail(() => {
-      throw new Error('Not found');
+      throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => {
       res.send({ data: card });
     })
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        next(new RequestError({ message }));
-      } else {
-        next(new DefaultError('Что-то пошло не так'));
-      }
-    });
+    .catch(next);
 };
 
 const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
   Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail(() => {
-      throw new Error('Not found');
+      throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => {
       res.send({ data: card });
     })
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        next(new RequestError({ message }));
-      } else {
-        next(new DefaultError('Что-то пошло не так'));
-      }
-    });
+    .catch(next);
 };
 
 module.exports = {

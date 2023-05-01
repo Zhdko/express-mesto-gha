@@ -2,9 +2,6 @@ require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const DefaultError = require('../errors/DefaultError');
-const RequestError = require('../errors/RequestError');
-const handleErrors = require('../errors/handleError');
 const RegisterError = require('../errors/RegisterError');
 const AuthorizationError = require('../errors/AuthorizationError');
 const NotFoundError = require('../errors/NotFoundError');
@@ -40,11 +37,7 @@ const createUser = (req, res, next) => {
         if (err.code === 11000) {
           next(new RegisterError('Email уже используется'));
         }
-        if (err.name === 'ValidationError') {
-          next(new RequestError('Переданы неккоректные данные'));
-        } else {
-          next(new DefaultError('Что-то пошло не так'));
-        }
+        next(err)
       });
   });
 };
@@ -71,54 +64,30 @@ const login = (req, res, next) => {
 const getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => next(new DefaultError('Что-то пошло не так')));
+    .catch(next);
 };
 
 const getUser = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(() => {
-      throw new Error('Not found');
+      throw new NotFoundError('Пользователь по указанному _id не найден.');
     })
     .then((user) => {
       res.send({ data: user });
     })
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        next(new RequestError({ message }));
-      } else {
-        next(new DefaultError('Что-то пошло не так'));
-      }
-    });
+    .catch(next);
 };
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      throw new Error('Not found');
+      throw new NotFoundError('Пользователь по указанному _id не найден.');
     })
     .then((user) => {
       res.send(user);
     })
-    .catch((err) => {
-      if (err.message === 'Not found') {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors)
-          .map((error) => error.message)
-          .join('; ');
-        next(new RequestError({ message }));
-      } else {
-        next(new DefaultError('Что-то пошло не так'));
-      }
-    });
+    .catch(next);
 };
 
 const updateUser = (req, res, next) => {
@@ -132,12 +101,10 @@ const updateUser = (req, res, next) => {
     },
   )
     .orFail(() => {
-      throw new Error('Not found');
+      throw new NotFoundError('Пользователь по указанному _id не найден.')
     })
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      handleErrors(err, req, res, next);
-    });
+    .catch(next);
 };
 
 const updateAvatar = (req, res, next) => {
@@ -151,12 +118,10 @@ const updateAvatar = (req, res, next) => {
     },
   )
     .orFail(() => {
-      throw new Error('Not found');
+      throw new NotFoundError('Пользователь по указанному _id не найден.')
     })
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      handleErrors(err, req, res, next);
-    });
+    .catch(next);
 };
 
 module.exports = {
