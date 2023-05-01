@@ -1,7 +1,6 @@
 const process = require('process');
 const cookieParser = require('cookie-parser');
 const express = require('express');
-const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const { userRouter } = require('./routes/users');
@@ -25,8 +24,8 @@ mongoose
 
 const { PORT = 3000 } = process.env;
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.post('/signin', validateLogin, login);
