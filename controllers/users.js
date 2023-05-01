@@ -26,12 +26,9 @@ const createUser = (req, res, next) => {
       password: hash,
     })
       .then((user) => {
-        res.send({
-          email: user.email,
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-        });
+        const userObject = user.toObject();
+        delete userObject.password;
+        res.send(userObject);
       })
       .catch((err) => {
         if (err.code === 11000) next(new RegisterError('Email уже используется'));
