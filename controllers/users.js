@@ -34,10 +34,8 @@ const createUser = (req, res, next) => {
         });
       })
       .catch((err) => {
-        if (err.code === 11000) {
-          next(new RegisterError('Email уже используется'));
-        }
-        next(err)
+        if (err.code === 11000) next(new RegisterError('Email уже используется'));
+        next(err);
       });
   });
 };
@@ -70,23 +68,15 @@ const getAllUsers = (req, res, next) => {
 const getUser = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
-    .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден.');
-    })
-    .then((user) => {
-      res.send({ data: user });
-    })
+    .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
+    .then((user) => res.send({ data: user }))
     .catch(next);
 };
 
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
-    .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден.');
-    })
-    .then((user) => {
-      res.send(user);
-    })
+    .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
+    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -95,14 +85,9 @@ const updateUser = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    {
-      new: true,
-      runValidators: true,
-    },
+    { new: true, runValidators: true },
   )
-    .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден.')
-    })
+    .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
     .then((user) => res.send({ data: user }))
     .catch(next);
 };
@@ -112,14 +97,9 @@ const updateAvatar = (req, res, next) => {
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
+    { new: true, runValidators: true },
   )
-    .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден.')
-    })
+    .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
     .then((user) => res.send({ data: user }))
     .catch(next);
 };
