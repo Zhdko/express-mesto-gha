@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { routers } = require('./routes');
 
-const { PORT } = process.env;
+const { PORT = 3000 } = process.env;
 
 process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
