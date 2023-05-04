@@ -5,8 +5,7 @@ const User = require('../models/user');
 const RegisterError = require('../errors/RegisterError');
 const AuthorizationError = require('../errors/AuthorizationError');
 const NotFoundError = require('../errors/NotFoundError');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { secretKey } = require('../utils/constants');
 
 const createUser = (req, res, next) => {
   const {
@@ -28,7 +27,7 @@ const createUser = (req, res, next) => {
       .then((user) => {
         const userObject = user.toObject();
         delete userObject.password;
-        res.send(userObject);
+        res.status(201).send(userObject);
       })
       .catch((err) => {
         if (err.code === 11000) next(new RegisterError('Email уже используется'));
@@ -42,7 +41,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user.id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user.id }, secretKey, { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
@@ -62,43 +61,32 @@ const getAllUsers = (req, res, next) => {
     .catch(next);
 };
 
-const getUser = (req, res, next) => {
-  const { userId } = req.params;
-  User.findById(userId)
+const findUser = (id, res, next) => {
+  User.findById(id)
     .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
     .then((user) => res.send({ data: user }))
     .catch(next);
 };
 
-const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
+const findAndUpdate = (id, data, res, next) => {
+  User.findByIdAndUpdate(id, data, { new: true, runValidators: true })
     .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
-    .then((user) => res.send(user))
+    .then((user) => res.send({ data: user }))
     .catch(next);
 };
+
+const getUser = (req, res, next) => findUser(req.params.userId, res, next);
+
+const getCurrentUser = (req, res, next) => findUser(req.user._id, res, next);
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true },
-  )
-    .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
-    .then((user) => res.send({ data: user }))
-    .catch(next);
+  findAndUpdate(req.user._id, { name, about }, res, next);
 };
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true },
-  )
-    .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
-    .then((user) => res.send({ data: user }))
-    .catch(next);
+  findAndUpdate(req.user._id, { avatar }, res, next);
 };
 
 module.exports = {
