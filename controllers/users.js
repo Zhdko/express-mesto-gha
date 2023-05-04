@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const RegisterError = require('../errors/RegisterError');
-const AuthorizationError = require('../errors/AuthorizationError');
 const NotFoundError = require('../errors/NotFoundError');
 const { secretKey } = require('../utils/constants');
 
@@ -50,9 +49,7 @@ const login = (req, res, next) => {
         })
         .send({ message: 'Вы успешно авторизовались' });
     })
-    .catch(() => {
-      next(new AuthorizationError('Неправильный логи или пароль'));
-    });
+    .catch(next);
 };
 
 const getAllUsers = (req, res, next) => {
