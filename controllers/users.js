@@ -3,8 +3,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const RegisterError = require('../errors/RegisterError');
+const AuthorizationError = require('../errors/AuthorizationError');
 const NotFoundError = require('../errors/NotFoundError');
 const { secretKey } = require('../utils/constants');
+const { default: mongoose } = require('mongoose');
+const RequestError = require('../errors/ValidationError');
 
 const createUser = (req, res, next) => {
   const {
@@ -29,8 +32,13 @@ const createUser = (req, res, next) => {
         res.status(201).send(userObject);
       })
       .catch((err) => {
-        if (err.code === 11000) next(new RegisterError('Email уже используется'));
-        next(err);
+        if (err.code === 11000) {
+          next(new RegisterError('Email уже используется'));
+        } else if (err instanceof mongoose.Error.ValidationError) {
+          next(new RequestError('Переданы неккоректные данные'));
+        } else {
+          next(err);
+        }
       });
   });
 };
