@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { routers } = require('./routes');
 
-const { PORT = 3000 } = process.env;
+const { DB_CONN, PORT } = process.env;
 
 process.on('uncaughtException', (err, origin) => {
   console.log(`${origin} ${err.name} c текстом ${err.message} не была обработана. Обратите внимание!`);
@@ -12,7 +12,7 @@ process.on('uncaughtException', (err, origin) => {
 
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', { useNewUrlParser: true }).catch((err) => console.log(err));
+mongoose.connect(DB_CONN, { useNewUrlParser: true }).catch((err) => console.log(err));
 
 app.use(routers);
 
