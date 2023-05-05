@@ -33,20 +33,21 @@ const deleteCard = (req, res, next) => {
     .catch(next);
 };
 
-const likeCard = (req, res, next) => {
-  const { cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+const findAndUpdate = (cardId, data, res, next) => {
+  Card.findByIdAndUpdate(cardId, data, { new: true })
     .orFail(() => new NotFoundError('Карточка не найдена'))
     .then((card) => res.send({ data: card }))
     .catch(next);
 };
 
+const likeCard = (req, res, next) => {
+  const { cardId } = req.params;
+  findAndUpdate(cardId, { $addToSet: { likes: req.user._id } }, res, next);
+};
+
 const dislikeCard = (req, res, next) => {
   const { cardId } = req.params;
-  Card.findByIdAndUpdate(cardId, { $pull: { likes: req.user._id } }, { new: true })
-    .orFail(() => new NotFoundError('Карточка не найдена'))
-    .then((card) => res.send({ data: card }))
-    .catch(next);
+  findAndUpdate(cardId, { $pull: { likes: req.user._id } }, res, next);
 };
 
 module.exports = {

@@ -1,12 +1,11 @@
 require('dotenv').config();
+const { default: mongoose } = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const RegisterError = require('../errors/RegisterError');
-const AuthorizationError = require('../errors/AuthorizationError');
 const NotFoundError = require('../errors/NotFoundError');
 const { secretKey } = require('../utils/constants');
-const { default: mongoose } = require('mongoose');
 const RequestError = require('../errors/ValidationError');
 
 const createUser = (req, res, next) => {
