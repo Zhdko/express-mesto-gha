@@ -8,16 +8,21 @@ const { validateLogin, validateCreateUser } = require('../middlewares/userValida
 const { userRouter } = require('./users');
 const { cardRouter } = require('./cards');
 const auth = require('../middlewares/auth');
+const { requestLogger, errorLogger } = require('../middlewares/logger');
 
 routers.use(express.json());
 routers.use(express.urlencoded({ extended: true }));
 routers.use(cookieParser());
+
+routers.use(requestLogger);
 
 routers.post('/signin', validateLogin, login);
 routers.post('/signup', validateCreateUser, createUser);
 
 routers.use('/users', auth, userRouter);
 routers.use('/cards', auth, cardRouter);
+
+routers.use(errorLogger);
 
 routers.use((req, res, next) => {
   next(new NotFoundError('Такого URL не существует'));
