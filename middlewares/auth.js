@@ -4,7 +4,7 @@ const { secretKey } = require('../utils/constants');
 require('dotenv').config();
 
 module.exports = (req, res, next) => {
-  const { token } = req;
+  const token = req.cookies.jwt;
 
   if (!token) {
     return next(new AuthorizationError('Необходима авторизация.'));
@@ -18,7 +18,6 @@ module.exports = (req, res, next) => {
   }
 
   req.user = payload;
-  console.log(payload);
 
   return next();
 };
