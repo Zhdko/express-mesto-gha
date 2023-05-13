@@ -47,15 +47,13 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      console.log(user);
       const token = jwt.sign({ _id: user.id }, secretKey, { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
-          httpOnly: true,
           sameSite: true,
         })
-        .send({ message: 'Вы успешно авторизовались' });
+        .send({ token });
     })
     .catch(next);
 };
