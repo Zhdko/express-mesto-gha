@@ -16,8 +16,8 @@ routers.use(cookieParser());
 
 routers.use(requestLogger);
 
-routers.post('/sign-in', validateLogin, login);
-routers.post('/sign-up', validateCreateUser, createUser);
+routers.post('/signin', validateLogin, login);
+routers.post('/signup', validateCreateUser, createUser);
 
 routers.use('/users', auth, userRouter);
 routers.use('/cards', auth, cardRouter);
