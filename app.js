@@ -15,7 +15,11 @@ const app = express();
 
 mongoose.connect(DB_CONN, { useNewUrlParser: true }).catch((err) => console.log(err));
 
-app.use(cors());
+app.use(
+  cors({
+    origin: 'http://mesto.zhdko.nomoredomains.monster',
+  }),
+);
 
 app.use(routers);
 
