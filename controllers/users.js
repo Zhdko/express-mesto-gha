@@ -47,6 +47,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      console.log(user);
       const token = jwt.sign({ _id: user.id }, secretKey, { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
