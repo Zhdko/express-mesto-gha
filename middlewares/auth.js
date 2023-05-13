@@ -4,11 +4,13 @@ const { secretKey } = require('../utils/constants');
 require('dotenv').config();
 
 module.exports = (req, res, next) => {
-  const token = req.cookies.jwt;
+  const { authorization } = req.headers;
 
-  if (!token) {
-    return next(new AuthorizationError('Необходима jjjавторизация.'));
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return next(new AuthorizationError('Необходима авторизация.'));
   }
+
+  const token = authorization.replace('Bearer ', '');
 
   let payload;
   try {
