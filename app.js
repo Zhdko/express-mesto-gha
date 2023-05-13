@@ -2,7 +2,7 @@ const process = require('process');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors');
+const cors = require('./middlewares/cors');
 const { routers } = require('./routes');
 
 const { DB_CONN, PORT } = process.env;
@@ -15,12 +15,7 @@ const app = express();
 
 mongoose.connect(DB_CONN, { useNewUrlParser: true }).catch((err) => console.log(err));
 
-app.use(
-  cors({
-    credentials: true,
-    origin: ['http://mesto.zhdko.nomoredomains.monster', 'http://localhost:3000'],
-  }),
-);
+app.use(cors());
 
 app.use(routers);
 
