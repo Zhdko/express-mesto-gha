@@ -84,6 +84,7 @@ const getCurrentUser = (req, res, next) => findUser(req.user._id, res, next);
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
+  console.log(req.user);
   findAndUpdate(req.user._id, { name, about }, res, next);
 };
 
