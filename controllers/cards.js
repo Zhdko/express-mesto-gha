@@ -33,7 +33,7 @@ const deleteCard = (req, res, next) => {
       }
       card
         .deleteOne()
-        .then(() => res.send({ data: card }))
+        .then(() => res.send(card))
         .catch(next);
     })
     .catch(next);
@@ -42,7 +42,7 @@ const deleteCard = (req, res, next) => {
 const findAndUpdate = (cardId, data, res, next) => {
   Card.findByIdAndUpdate(cardId, data, { new: true })
     .orFail(() => new NotFoundError('Карточка не найдена'))
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.send(card))
     .catch(next);
 };
 
