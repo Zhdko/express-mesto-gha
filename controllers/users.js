@@ -9,13 +9,7 @@ const { secretKey } = require('../utils/constants');
 const RequestError = require('../errors/ValidationError');
 
 const createUser = (req, res, next) => {
-  const {
-    name,
-    about,
-    avatar,
-    email,
-    password,
-  } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
   bcrypt.hash(password, 10).then((hash) => {
     User.create({
@@ -67,7 +61,7 @@ const getAllUsers = (req, res, next) => {
 const findUser = (id, res, next) => {
   User.findById(id)
     .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch(next);
 };
 
