@@ -18,7 +18,7 @@ mongoose.connect(DB_CONN, { useNewUrlParser: true }).catch((err) => console.log(
 app.use(
   cors({
     credentials: true,
-    origin: 'http://localhost:3000',
+    origin: '*',
     exposedHeaders: ['set-cookie'],
   }),
 );
