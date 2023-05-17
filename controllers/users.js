@@ -68,7 +68,7 @@ const findUser = (id, res, next) => {
 const findAndUpdate = (id, data, res, next) => {
   User.findByIdAndUpdate(id, data, { new: true, runValidators: true })
     .orFail(() => new NotFoundError('Пользователь по указанному _id не найден.'))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch(next);
 };
 
