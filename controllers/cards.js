@@ -42,6 +42,7 @@ const deleteCard = (req, res, next) => {
 const findAndUpdate = (cardId, data, res, next) => {
   Card.findByIdAndUpdate(cardId, data, { new: true })
     .orFail(() => new NotFoundError('Карточка не найдена'))
+    .populate(['owner', 'likes'])
     .then((card) => res.send(card))
     .catch(next);
 };
