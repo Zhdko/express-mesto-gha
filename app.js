@@ -21,7 +21,6 @@ app.use(
     origin: [
       'https://mesto.zhdko.nomoredomains.monster',
       'http://mesto.zhdko.nomoredomains.monster',
-
     ],
     exposedHeaders: ['set-cookie'],
   }),
