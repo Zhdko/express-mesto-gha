@@ -1,5 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const routers = require('express').Router();
 const { errors } = require('celebrate');
 const NotFoundError = require('../errors/NotFoundError');
@@ -10,6 +12,14 @@ const { cardRouter } = require('./cards');
 const auth = require('../middlewares/auth');
 const { requestLogger, errorLogger } = require('../middlewares/logger');
 
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+routers.use(helmet());
 routers.use(express.json());
 routers.use(express.urlencoded({ extended: true }));
 routers.use(cookieParser());
@@ -21,6 +31,8 @@ routers.get('/crash-test', () => {
     throw new Error('Сервер сейчас упадёт');
   }, 0);
 });
+
+routers.use(limiter);
 
 routers.post('/signin', validateLogin, login);
 routers.post('/signup', validateCreateUser, createUser);
