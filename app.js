@@ -17,7 +17,7 @@ mongoose.connect(DB, { useNewUrlParser: true }).catch((err) => console.log(err))
 
 app.use(
   cors({
-    credentials: true,
+    withCredentials: true,
     origin: [
       'https://mesto.zhdko.nomoredomains.monster',
       'http://mesto.zhdko.nomoredomains.monster',
