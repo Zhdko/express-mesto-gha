@@ -53,6 +53,7 @@ const login = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           sameSite: true,
           httpOnly: true,
+          domain: 'mesto.zhdko.nomoredomains.monster',
         })
         .send({ token });
     })
