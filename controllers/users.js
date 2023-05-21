@@ -51,9 +51,9 @@ const login = (req, res, next) => {
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
-          sameSite: true,
+          sameSite: 'none',
           httpOnly: true,
-          domain: 'http://mesto.zhdko.nomoredomains.monster',
+          secure: true,
         })
         .send({ token });
     })
