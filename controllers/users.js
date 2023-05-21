@@ -60,6 +60,12 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
+const logout = (req, res) => {
+  res.clearCookie('jwt');
+  res.status(200).send({ message: 'Вы успешно вышли' });
+  res.end();
+};
+
 const getAllUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
@@ -102,4 +108,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  logout,
 };
