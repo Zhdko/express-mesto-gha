@@ -20,7 +20,6 @@ app.use(
     credentials: true,
     origin: [
       'https://mesto.zhdko.nomoredomains.monster',
-      'http://mesto.zhdko.nomoredomains.monster',
     ],
     exposedHeaders: ['set-cookie'],
   }),
